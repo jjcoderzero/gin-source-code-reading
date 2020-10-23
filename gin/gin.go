@@ -1,7 +1,3 @@
-// Copyright 2014 Manu Martinez-Almeida.  All rights reserved.
-// Use of this source code is governed by a MIT style
-// license that can be found in the LICENSE file.
-
 package gin
 
 import (
@@ -26,13 +22,13 @@ var (
 
 var defaultAppEngine bool
 
-// HandlerFunc defines the handler used by gin middleware as return value.
+// HandlerFunc 将gin中间件使用的处理程序定义为返回值
 type HandlerFunc func(*Context)
 
-// HandlersChain defines a HandlerFunc array.
+// HandlersChain 定义一个HandlerFunc数组.
 type HandlersChain []HandlerFunc
 
-// Last returns the last handler in the chain. ie. the last handler is the main one.
+// Last 返回链中的最后一个处理程序。ie。最后一个处理程序是主处理程序.
 func (c HandlersChain) Last() HandlerFunc {
 	if length := len(c); length > 0 {
 		return c[length-1]
@@ -40,46 +36,35 @@ func (c HandlersChain) Last() HandlerFunc {
 	return nil
 }
 
-// RouteInfo represents a request route's specification which contains method and path and its handler.
+// RouteInfo 表示包含方法、路径及其处理程序的请求路由的规范.
 type RouteInfo struct {
-	Method      string
+	Method      string //
 	Path        string
 	Handler     string
 	HandlerFunc HandlerFunc
 }
 
-// RoutesInfo defines a RouteInfo array.
+// RoutesInfo 定义一个RouteInfo数组.
 type RoutesInfo []RouteInfo
 
-// Engine is the framework's instance, it contains the muxer, middleware and configuration settings.
-// Create an instance of Engine, by using New() or Default()
+// Engine 是框架的实例，它包含muxer，middleware和配置设置。
+// 使用New()或者Default()创建一个Engine实例。
 type Engine struct {
 	RouterGroup
 
-	// Enables automatic redirection if the current route can't be matched but a
-	// handler for the path with (without) the trailing slash exists.
+	// 如果无法匹配当前路由，但存在带有(没有)尾斜杠的路径处理程序，则启用自动重定向。
 	// For example if /foo/ is requested but a route only exists for /foo, the
 	// client is redirected to /foo with http status code 301 for GET requests
 	// and 307 for all other request methods.
 	RedirectTrailingSlash bool
 
-	// If enabled, the router tries to fix the current request path, if no
-	// handle is registered for it.
-	// First superfluous path elements like ../ or // are removed.
-	// Afterwards the router does a case-insensitive lookup of the cleaned path.
-	// If a handle can be found for this route, the router makes a redirection
-	// to the corrected path with status code 301 for GET requests and 307 for
-	// all other request methods.
+	// 如果启用，路由器尝试修复当前请求路径，如果没有为它注册句柄
+	// 首先是多余的路径元素，如../或//被删除。然后，路由器对被清理的路径进行不区分大小写的查找。如果可以找到这个路由的句柄，路由器用状态代码301为GET请求和307为所有其他请求方法重定向到正确的路径。
 	// For example /FOO and /..//Foo could be redirected to /foo.
-	// RedirectTrailingSlash is independent of this option.
+	// RedirectTrailingSlash 与这个选项无关.
 	RedirectFixedPath bool
 
-	// If enabled, the router checks if another method is allowed for the
-	// current route, if the current request can not be routed.
-	// If this is the case, the request is answered with 'Method Not Allowed'
-	// and HTTP status code 405.
-	// If no other Method is allowed, the request is delegated to the NotFound
-	// handler.
+	// 如果启用，路由器检查当前路由是否允许另一种方法，如果当前请求不能被路由。如果是这种情况，则用“Method Not Allowed”和HTTP状态码405回答该请求。如果不允许使用其他方法，则将请求委托给NotFound处理程序。
 	HandleMethodNotAllowed bool
 	ForwardedByClientIP    bool
 
@@ -87,12 +72,11 @@ type Engine struct {
 	// 'X-AppEngine...' for better integration with that PaaS.
 	AppEngine bool
 
-	// If enabled, the url.RawPath will be used to find parameters.
+	// 如果启用，url.RawPath将用于查找参数
 	UseRawPath bool
 
-	// If true, the path value will be unescaped.
-	// If UseRawPath is false (by default), the UnescapePathValues effectively is true,
-	// as url.Path gonna be used, which is already unescaped.
+	// 如果为真，路径值将不会转义。
+	// 如果UseRawPath为false(默认情况下)，则UnescapePathValues作为url有效地为true。路径会被使用，它已经没有转义了。
 	UnescapePathValues bool
 
 	// Value of 'maxMemory' param that is given to http.Request's ParseMultipartForm
@@ -118,7 +102,7 @@ type Engine struct {
 
 var _ IRouter = &Engine{}
 
-// New returns a new blank Engine instance without any middleware attached.
+// New返回一个新的空白引擎实例，不附带任何中间件.
 // By default the configuration is:
 // - RedirectTrailingSlash:  true
 // - RedirectFixedPath:      false
@@ -155,7 +139,7 @@ func New() *Engine {
 	return engine
 }
 
-// Default returns an Engine instance with the Logger and Recovery middleware already attached.
+// Default返回一个Engine实例，其中已经附加了日志记录器和恢复中间件.
 func Default() *Engine {
 	debugPrintWARNINGDefault()
 	engine := New()
@@ -168,20 +152,19 @@ func (engine *Engine) allocateContext() *Context {
 	return &Context{engine: engine, params: &v}
 }
 
-// Delims sets template left and right delims and returns a Engine instance.
+// Delims 设置模板左边和右边的delims，并返回一个引擎实例.
 func (engine *Engine) Delims(left, right string) *Engine {
 	engine.delims = render.Delims{Left: left, Right: right}
 	return engine
 }
 
-// SecureJsonPrefix sets the secureJSONPrefix used in Context.SecureJSON.
+// SecureJsonPrefix 设置Context.SecureJSON中使用的secureJSONPrefix.
 func (engine *Engine) SecureJsonPrefix(prefix string) *Engine {
 	engine.secureJSONPrefix = prefix
 	return engine
 }
 
-// LoadHTMLGlob loads HTML files identified by glob pattern
-// and associates the result with HTML renderer.
+// LoadHTMLGlob 加载由glob模式识别的HTML文件，并将结果与HTML渲染器关联.
 func (engine *Engine) LoadHTMLGlob(pattern string) {
 	left := engine.delims.Left
 	right := engine.delims.Right
@@ -196,8 +179,7 @@ func (engine *Engine) LoadHTMLGlob(pattern string) {
 	engine.SetHTMLTemplate(templ)
 }
 
-// LoadHTMLFiles loads a slice of HTML files
-// and associates the result with HTML renderer.
+// LoadHTMLFiles 加载一个HTML文件切片，并将结果与HTML渲染器关联.
 func (engine *Engine) LoadHTMLFiles(files ...string) {
 	if IsDebugging() {
 		engine.HTMLRender = render.HTMLDebug{Files: files, FuncMap: engine.FuncMap, Delims: engine.delims}
@@ -208,7 +190,7 @@ func (engine *Engine) LoadHTMLFiles(files ...string) {
 	engine.SetHTMLTemplate(templ)
 }
 
-// SetHTMLTemplate associate a template with HTML renderer.
+// SetHTMLTemplate 将模板与HTML渲染器关联.
 func (engine *Engine) SetHTMLTemplate(templ *template.Template) {
 	if len(engine.trees) > 0 {
 		debugPrintWARNINGSetHTMLTemplate()
@@ -222,7 +204,7 @@ func (engine *Engine) SetFuncMap(funcMap template.FuncMap) {
 	engine.FuncMap = funcMap
 }
 
-// NoRoute adds handlers for NoRoute. It return a 404 code by default.
+// NoRoute 为NoRoute添加处理程序。默认情况下，它返回404代码.
 func (engine *Engine) NoRoute(handlers ...HandlerFunc) {
 	engine.noRoute = handlers
 	engine.rebuild404Handlers()
@@ -234,8 +216,7 @@ func (engine *Engine) NoMethod(handlers ...HandlerFunc) {
 	engine.rebuild405Handlers()
 }
 
-// Use attaches a global middleware to the router. ie. the middleware attached though Use() will be
-// included in the handlers chain for every single request. Even 404, 405, static files...
+// Use将一个全局中间件连接到路由器。ie。通过Use()附加的中间件将包含在每个请求的处理程序链中。甚至404 405,静态文件…
 // For example, this is the right place for a logger or error management middleware.
 func (engine *Engine) Use(middleware ...HandlerFunc) IRoutes {
 	engine.RouterGroup.Use(middleware...)
@@ -273,8 +254,7 @@ func (engine *Engine) addRoute(method, path string, handlers HandlersChain) {
 	}
 }
 
-// Routes returns a slice of registered routes, including some useful information, such as:
-// the http method, path and the handler name.
+// Routes 返回已注册路由的一部分，包括一些有用的信息, such as: the http method, path and the handler name.
 func (engine *Engine) Routes() (routes RoutesInfo) {
 	for _, tree := range engine.trees {
 		routes = iterate("", tree.method, routes, tree.root)
@@ -299,9 +279,8 @@ func iterate(path, method string, routes RoutesInfo, root *node) RoutesInfo {
 	return routes
 }
 
-// Run attaches the router to a http.Server and starts listening and serving HTTP requests.
-// It is a shortcut for http.ListenAndServe(addr, router)
-// Note: this method will block the calling goroutine indefinitely unless an error happens.
+// Run 将路由器连接到http.Server并且开始监听和服务HTTP请求。他是http.ListenAndServer(addr, router)快捷方法。
+// 注意: 此方法将无限期地阻止调用goroutine，除非发生错误。
 func (engine *Engine) Run(addr ...string) (err error) {
 	defer func() { debugPrintError(err) }()
 
@@ -311,9 +290,8 @@ func (engine *Engine) Run(addr ...string) (err error) {
 	return
 }
 
-// RunTLS attaches the router to a http.Server and starts listening and serving HTTPS (secure) requests.
-// It is a shortcut for http.ListenAndServeTLS(addr, certFile, keyFile, router)
-// Note: this method will block the calling goroutine indefinitely unless an error happens.
+//RunTLS 将路由器连接到http.Server并且开始监听和服务HTTPS(secure)请求.他是http.ListenAndServeTLS(addr, certFile, keyFile, router)快捷方法。
+// 注意: 此方法将无限期地阻止调用goroutine，除非发生错误。
 func (engine *Engine) RunTLS(addr, certFile, keyFile string) (err error) {
 	debugPrint("Listening and serving HTTPS on %s\n", addr)
 	defer func() { debugPrintError(err) }()
@@ -322,9 +300,8 @@ func (engine *Engine) RunTLS(addr, certFile, keyFile string) (err error) {
 	return
 }
 
-// RunUnix attaches the router to a http.Server and starts listening and serving HTTP requests
-// through the specified unix socket (ie. a file).
-// Note: this method will block the calling goroutine indefinitely unless an error happens.
+// RunUnix 通过指定unix socket(ie. a file)将路由器连接到http.Server并且开始监听和服务HTTP请求.
+// 注意: 此方法将无限期地阻止调用goroutine，除非发生错误。
 func (engine *Engine) RunUnix(file string) (err error) {
 	debugPrint("Listening and serving HTTP on unix:/%s", file)
 	defer func() { debugPrintError(err) }()
@@ -340,9 +317,8 @@ func (engine *Engine) RunUnix(file string) (err error) {
 	return
 }
 
-// RunFd attaches the router to a http.Server and starts listening and serving HTTP requests
-// through the specified file descriptor.
-// Note: this method will block the calling goroutine indefinitely unless an error happens.
+// RunFd 通过指定文件描述符将路由器连接到http.Server并且开始监听和服务HTTP请求.
+// 注意: 此方法将无限期地阻止调用goroutine，除非发生错误。
 func (engine *Engine) RunFd(fd int) (err error) {
 	debugPrint("Listening and serving HTTP on fd@%d", fd)
 	defer func() { debugPrintError(err) }()
@@ -357,8 +333,7 @@ func (engine *Engine) RunFd(fd int) (err error) {
 	return
 }
 
-// RunListener attaches the router to a http.Server and starts listening and serving HTTP requests
-// through the specified net.Listener
+// RunListener 通过指定net.Listener将路由器连接到http.Server并且开始监听和服务HTTP请求.
 func (engine *Engine) RunListener(listener net.Listener) (err error) {
 	debugPrint("Listening and serving HTTP on listener what's bind with address@%s", listener.Addr())
 	defer func() { debugPrintError(err) }()
@@ -378,9 +353,8 @@ func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	engine.pool.Put(c)
 }
 
-// HandleContext re-enter a context that has been rewritten.
-// This can be done by setting c.Request.URL.Path to your new target.
-// Disclaimer: You can loop yourself to death with this, use wisely.
+// HandleContext重新输入一个已经重写的上下文。 这可以通过设置c.Request.URL.Path来达到新的目的。
+//免责声明:你可以用这个把自己套死，请明智使用。
 func (engine *Engine) HandleContext(c *Context) {
 	oldIndexValue := c.index
 	c.reset()
